@@ -13,7 +13,7 @@ def to_datetime(ts):
 # -------------------------
 # MLflow Configuration
 # -------------------------
-MLFLOW_TRACKING_URI = "http://127.0.0.1:8080"
+MLFLOW_TRACKING_URI = "https://c401526edd9c.ngrok-free.app/"
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 client = MlflowClient()
 
@@ -125,3 +125,4 @@ elif section == "Metrics Overview":
                 st.warning("No metrics found for this experiment.")
         else:
             st.warning("No runs found to display metrics.")
+
