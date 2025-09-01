@@ -160,7 +160,7 @@ elif section == "Artifacts":
                 if artifacts:
                     selected_artifact = st.selectbox("Select artifact to preview", artifacts)
                     if selected_artifact:
-                        local_path = client.download_artifacts(selected_run, selected_artifact)
+                     #   local_path = client.download_artifacts(selected_run, selected_artifact)
 
                         # Display based on type
                         if local_path.endswith((".png", ".jpg", ".jpeg")):
@@ -192,3 +192,4 @@ elif section == "Artifacts":
                     st.warning("No artifacts found for this run.")
         else:
             st.warning("No runs found to display artifacts.")
+
