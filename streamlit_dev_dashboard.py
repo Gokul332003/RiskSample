@@ -155,6 +155,7 @@ elif section == "Artifacts":
                     return files
 
                 artifacts = list_all_artifacts(selected_run)
+                st.write(artifacts)
 
                 # if artifacts:
                 #     selected_artifact = st.selectbox("Select artifact to preview", artifacts)
@@ -184,4 +185,5 @@ elif section == "Artifacts":
                 #     st.warning("No artifacts found for this run.")
         else:
             st.warning("No runs found to display artifacts.")
+
 
