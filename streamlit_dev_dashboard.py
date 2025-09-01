@@ -108,7 +108,6 @@ elif section == "Metrics Overview":
     if selected_exp:
         runs = client.search_runs([exp_dict[selected_exp]])
         if runs:
-            # Collect all metric keys across runs
             all_metrics = set()
             for run in runs:
                 all_metrics.update(run.data.metrics.keys())
@@ -160,7 +159,7 @@ elif section == "Artifacts":
                 if artifacts:
                     selected_artifact = st.selectbox("Select artifact to preview", artifacts)
                     if selected_artifact:
-                     #   local_path = client.download_artifacts(selected_run, selected_artifact)
+                        local_path = client.download_artifacts(selected_run, selected_artifact)
 
                         # Display based on type
                         if local_path.endswith((".png", ".jpg", ".jpeg")):
@@ -179,17 +178,9 @@ elif section == "Artifacts":
                             with open(local_path, "r") as f:
                                 st.code(f.read())
 
-                        elif local_path.endswith(".pdf"):
-                            import base64
-                            with open(local_path, "rb") as f:
-                                base64_pdf = base64.b64encode(f.read()).decode("utf-8")
-                            pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600"></iframe>'
-                            st.markdown(pdf_display, unsafe_allow_html=True)
-
                         else:
                             st.info("Preview not supported for this file type.")
                 else:
                     st.warning("No artifacts found for this run.")
         else:
             st.warning("No runs found to display artifacts.")
-
