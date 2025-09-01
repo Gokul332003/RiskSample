@@ -20,14 +20,14 @@ client = MlflowClient()
 # -------------------------
 # Sidebar
 # -------------------------
-st.sidebar.title("⚙️ Developer Dashboard")
+st.sidebar.title("Developer Dashboard")
 section = st.sidebar.radio("Navigate", ["Experiments", "Runs", "Registered Models", "Metrics Overview"])
 
 # -------------------------
 # Experiments Section
 # -------------------------
 if section == "Experiments":
-    st.title("📊 Experiments Overview")
+    st.title("Experiments Overview")
     
     experiments = client.search_experiments(order_by=["name ASC"])
     if not experiments:
@@ -37,7 +37,7 @@ if section == "Experiments":
             {
                 "Experiment ID": exp.experiment_id,
                 "Name": exp.name,
-                "Artifact Location": exp.artifact_location,
+             #   "Artifact Location": exp.artifact_location,
                 "Lifecycle Stage": exp.lifecycle_stage
             }
             for exp in experiments
@@ -48,7 +48,7 @@ if section == "Experiments":
 # Runs Section
 # -------------------------
 elif section == "Runs":
-    st.title("🏃 Model Runs")
+    st.title("Model Runs")
     
     experiments = client.search_experiments(order_by=["name ASC"])
     exp_dict = {exp.name: exp.experiment_id for exp in experiments}
@@ -78,7 +78,7 @@ elif section == "Runs":
 # Registered Models Section
 # -------------------------
 elif section == "Registered Models":
-    st.title("📦 Registered Models in MLflow Registry")
+    st.title("Registered Models in MLflow Registry")
     
     models = client.search_registered_models()
     if not models:
@@ -98,7 +98,7 @@ elif section == "Registered Models":
 # Metrics Overview Section
 # -------------------------
 elif section == "Metrics Overview":
-    st.title("📈 Metrics Dashboard")
+    st.title("Metrics Dashboard")
     
     experiments = client.search_experiments(order_by=["name ASC"])
     exp_dict = {exp.name: exp.experiment_id for exp in experiments}
@@ -125,6 +125,7 @@ elif section == "Metrics Overview":
                 st.warning("No metrics found for this experiment.")
         else:
             st.warning("No runs found to display metrics.")
+
 
 
 
