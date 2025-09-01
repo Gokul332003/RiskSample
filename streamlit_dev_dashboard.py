@@ -155,35 +155,35 @@ elif section == "Artifacts":
                     return files
 
                 artifacts = list_all_artifacts(selected_run)
-                st.write(artifacts)
+                
+                if artifacts:
+                    selected_artifact = st.selectbox("Select artifact to preview", artifacts)
+                    if selected_artifact:
+                        local_path = client.download_artifacts(selected_run, selected_artifact)
 
-                # if artifacts:
-                #     selected_artifact = st.selectbox("Select artifact to preview", artifacts)
-                #     if selected_artifact:
-                #         local_path = client.download_artifacts(selected_run, selected_artifact)
+                        # Display based on type
+                        if local_path.endswith((".png", ".jpg", ".jpeg")):
+                            st.image(local_path, use_container_width=True)
 
-                #         # Display based on type
-                #         if local_path.endswith((".png", ".jpg", ".jpeg")):
-                #             st.image(local_path, use_container_width=True)
+                        elif local_path.endswith(".csv"):
+                            df_art = pd.read_csv(local_path)
+                            st.dataframe(df_art)
 
-                #         elif local_path.endswith(".csv"):
-                #             df_art = pd.read_csv(local_path)
-                #             st.dataframe(df_art)
+                        elif local_path.endswith(".json"):
+                            import json
+                            with open(local_path, "r") as f:
+                                st.json(json.load(f))
 
-                #         elif local_path.endswith(".json"):
-                #             import json
-                #             with open(local_path, "r") as f:
-                #                 st.json(json.load(f))
+                        elif local_path.endswith((".txt", ".log", ".py")):
+                            with open(local_path, "r") as f:
+                                st.code(f.read())
 
-                #         elif local_path.endswith((".txt", ".log", ".py")):
-                #             with open(local_path, "r") as f:
-                #                 st.code(f.read())
-
-                #         else:
-                #             st.info("Preview not supported for this file type.")
-                # else:
-                #     st.warning("No artifacts found for this run.")
+                        else:
+                            st.info("Preview not supported for this file type.")
+                else:
+                    st.warning("No artifacts found for this run.")
         else:
             st.warning("No runs found to display artifacts.")
+
 
 
