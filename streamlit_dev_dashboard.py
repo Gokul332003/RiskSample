@@ -21,7 +21,7 @@ client = MlflowClient()
 # Sidebar
 # -------------------------
 st.sidebar.title("Developer Dashboard")
-section = st.sidebar.radio("Navigate", ["Experiments", "Runs", "Registered Models", "Metrics Overview"])
+section = st.sidebar.radio("Navigate", ["Experiments", "Runs", "Registered Models", "Metrics Overview","Artifacts"])
 
 # -------------------------
 # Experiments Section
@@ -37,7 +37,7 @@ if section == "Experiments":
             {
                 "Experiment ID": exp.experiment_id,
                 "Name": exp.name,
-             #   "Artifact Location": exp.artifact_location,
+              #  "Artifact Location": exp.artifact_location,
                 "Lifecycle Stage": exp.lifecycle_stage
             }
             for exp in experiments
@@ -85,7 +85,7 @@ elif section == "Registered Models":
         st.warning("No registered models found in the MLflow Model Registry.")
     else:
         for model in models:
-            st.subheader(f"📌 {model.name}")
+            st.subheader(f"{model.name}")
             st.write(f"**Description:** {model.description or 'No description'}")
             
             if model.latest_versions:
@@ -125,7 +125,70 @@ elif section == "Metrics Overview":
                 st.warning("No metrics found for this experiment.")
         else:
             st.warning("No runs found to display metrics.")
+#-------------------------
+#Artifacts Overview
+#-------------------------
+elif section == "Artifacts":
+    st.title("Artifacts Overview")
 
+    experiments = client.search_experiments(order_by=["name ASC"])
+    exp_dict = {exp.name: exp.experiment_id for exp in experiments}
 
+    selected_exp = st.selectbox("Select Experiment for Artifacts", list(exp_dict.keys()))
 
+    if selected_exp:
+        runs = client.search_runs([exp_dict[selected_exp]])
+        if runs:
+            run_ids = [run.info.run_id for run in runs]
+            selected_run = st.selectbox("Select Run", run_ids)
 
+            if selected_run:
+
+                def list_all_artifacts(run_id, path=""):
+                    """Recursively list all artifacts (files only)."""
+                    artifacts = client.list_artifacts(run_id, path)
+                    files = []
+                    for art in artifacts:
+                        if art.is_dir:
+                            files.extend(list_all_artifacts(run_id, art.path))
+                        else:
+                            files.append(art.path)
+                    return files
+
+                artifacts = list_all_artifacts(selected_run)
+
+                if artifacts:
+                    selected_artifact = st.selectbox("Select artifact to preview", artifacts)
+                    if selected_artifact:
+                        local_path = client.download_artifacts(selected_run, selected_artifact)
+
+                        # Display based on type
+                        if local_path.endswith((".png", ".jpg", ".jpeg")):
+                            st.image(local_path, use_container_width=True)
+
+                        elif local_path.endswith(".csv"):
+                            df_art = pd.read_csv(local_path)
+                            st.dataframe(df_art)
+
+                        elif local_path.endswith(".json"):
+                            import json
+                            with open(local_path, "r") as f:
+                                st.json(json.load(f))
+
+                        elif local_path.endswith((".txt", ".log", ".py")):
+                            with open(local_path, "r") as f:
+                                st.code(f.read())
+
+                        elif local_path.endswith(".pdf"):
+                            import base64
+                            with open(local_path, "rb") as f:
+                                base64_pdf = base64.b64encode(f.read()).decode("utf-8")
+                            pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600"></iframe>'
+                            st.markdown(pdf_display, unsafe_allow_html=True)
+
+                        else:
+                            st.info("Preview not supported for this file type.")
+                else:
+                    st.warning("No artifacts found for this run.")
+        else:
+            st.warning("No runs found to display artifacts.")
